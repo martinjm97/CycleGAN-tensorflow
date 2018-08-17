@@ -80,7 +80,7 @@ def main(_):
 
     # Config protos for Horovod
     tfconfig.gpu_options.visible_device_list = str(hvd.local_rank())
-    with tf.MonitoredTrainingSession(config=tfconfig, hooks=hooks, checkpoint_dir=checkpoint_dir) as sess:
+    with tf.train.MonitoredTrainingSession(config=tfconfig, hooks=hooks, checkpoint_dir=checkpoint_dir) as sess:
         model = cyclegan(sess, args)
         hooks = [
             # Horovod: BroadcastGlobalVariablesHook broadcasts initial variable states
