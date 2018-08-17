@@ -172,7 +172,7 @@ class cyclegan(object):
         counter = 1
         start_time = time.time()
 
-        print("starting trainting")
+        print("starting training")
 
         if args.continue_train:
             if self.load(args.checkpoint_dir):
