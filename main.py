@@ -2,8 +2,8 @@ import argparse
 import os
 import tensorflow as tf
 tf.set_random_seed(19)
-from model import cyclegan
-import model
+from model import cyclegan, global_step
+
 
 parser = argparse.ArgumentParser(description='')
 parser.add_argument('--dataset_dir', dest='dataset_dir',
@@ -89,7 +89,7 @@ def main(_):
         # Horovod: adjust number of steps based on number of GPUs.
         tf.train.StopAtStepHook(last_step=20000 // hvd.size()),
 
-        tf.train.LoggingTensorHook(tensors={'step': model.global_step, 'loss': loss},
+        tf.train.LoggingTensorHook(tensors={'step': global_step, 'loss': loss},
                                    every_n_iter=10),
     ]
 
