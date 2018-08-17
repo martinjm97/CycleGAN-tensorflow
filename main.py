@@ -72,20 +72,6 @@ def main(_):
     if not os.path.exists(args.test_dir):
         os.makedirs(args.test_dir)
 
-    hooks = [
-        # Horovod: BroadcastGlobalVariablesHook broadcasts initial variable states
-        # from rank 0 to all other processes. This is necessary to ensure consistent
-        # initialization of all workers when training is started with random weights
-        # or restored from a checkpoint.
-        hvd.BroadcastGlobalVariablesHook(0),
-
-        # Horovod: adjust number of steps based on number of GPUs.
-        tf.train.StopAtStepHook(last_step=20000 // hvd.size()),
-
-        tf.train.LoggingTensorHook(tensors={'step': global_step, 'loss': loss},
-                                   every_n_iter=10),
-    ]
-
     # Make a checkpoint
     checkpoint_dir = './checkpoints' if hvd.rank() == 0 else None
 
@@ -96,6 +82,19 @@ def main(_):
     tfconfig.gpu_options.visible_device_list = str(hvd.local_rank())
     with tf.MonitoredTrainingSession(config=tfconfig, hooks=hooks, checkpoint_dir=checkpoint_dir) as sess:
         model = cyclegan(sess, args)
+        hooks = [
+            # Horovod: BroadcastGlobalVariablesHook broadcasts initial variable states
+            # from rank 0 to all other processes. This is necessary to ensure consistent
+            # initialization of all workers when training is started with random weights
+            # or restored from a checkpoint.
+            hvd.BroadcastGlobalVariablesHook(0),
+
+            # Horovod: adjust number of steps based on number of GPUs.
+            tf.train.StopAtStepHook(last_step=20000 // hvd.size()),
+
+            tf.train.LoggingTensorHook(tensors={'step': model.global_step, 'loss': loss},
+                                       every_n_iter=10),
+        ]
         model.train(args) if args.phase == 'train' \
             else model.test(args)
 

@@ -143,11 +143,13 @@ class cyclegan(object):
 
     def train(self, args):
         """Train cyclegan"""
+        self.global_step = tf.contrib.framework.get_or_create_global_step()
         self.lr = tf.placeholder(tf.float32, None, name='learning_rate')
         self.d_optim = tf.train.AdamOptimizer(self.lr, beta1=args.beta1) \
-            .minimize(self.d_loss, var_list=self.d_vars)
+
+            .minimize(self.d_loss, var_list=self.d_vars, global_step=self.global_step)
         self.g_optim = tf.train.AdamOptimizer(self.lr, beta1=args.beta1) \
-            .minimize(self.g_loss, var_list=self.g_vars)
+            .minimize(self.g_loss, var_list=self.g_vars, global_step=self.global_step)
 
         # Horovod: add Horovod Distributed Optimizer.
         self.d_optim = hvd.DistributedOptimizer(self.d_optim)
