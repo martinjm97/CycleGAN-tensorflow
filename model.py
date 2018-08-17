@@ -205,7 +205,12 @@ class cyclegan(object):
                 fake_A, fake_B, _, summary_str = self.sess.run(
                     [self.fake_A, self.fake_B, self.g_optim, self.g_sum],
                     feed_dict={self.real_data: batch_images, self.lr: lr})
-                self.writer.add_summary(summary_str, counter)
+
+                # TODO: add this everywhere we write. Point log directory to the mount
+                # top-level should now be data + logs. Then boot up tensorboard on logs.
+                # expose port with kubernetes service.
+                if hvd.rank() == 0:
+                    self.writer.add_summary(summary_str, counter)
                 [fake_A, fake_B] = self.pool([fake_A, fake_B])
 
                 # Update D network
