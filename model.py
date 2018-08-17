@@ -185,6 +185,7 @@ class cyclegan(object):
                 (args.epoch-epoch)/(args.epoch-args.epoch_step)
 
             for idx in range(0, batch_idxs):
+                print("batch {}".format(idx))
                 batch_files = list(zip(dataA[idx * self.batch_size:(idx + 1) * self.batch_size],
                                        dataB[idx * self.batch_size:(idx + 1) * self.batch_size]))
                 batch_images = [load_train_data(
