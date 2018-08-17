@@ -10,10 +10,9 @@ from module import *
 from utils import *
 import horovod.tensorflow as hvd
 
-# global global_step
-
-# global_step = tf.contrib.framework.get_or_create_global_step()
-
+# TODO: Point log directory to the mount
+                # top-level should now be data + logs. Then boot up tensorboard on logs.
+                # expose port with kubernetes service.
 
 class cyclegan(object):
     def __init__(self, sess, args):
@@ -167,7 +166,8 @@ class cyclegan(object):
 
         print("beginning session")
         self.sess.run(hvd_init_op)
-        self.writer = tf.summary.FileWriter("./logs", self.sess.graph)
+        if hvd.rank() == 0:
+            self.writer = tf.summary.FileWriter("./logs", self.sess.graph)
 
         counter = 1
         start_time = time.time()
@@ -206,9 +206,6 @@ class cyclegan(object):
                     [self.fake_A, self.fake_B, self.g_optim, self.g_sum],
                     feed_dict={self.real_data: batch_images, self.lr: lr})
 
-                # TODO: add this everywhere we write. Point log directory to the mount
-                # top-level should now be data + logs. Then boot up tensorboard on logs.
-                # expose port with kubernetes service.
                 if hvd.rank() == 0:
                     self.writer.add_summary(summary_str, counter)
                 [fake_A, fake_B] = self.pool([fake_A, fake_B])
@@ -220,7 +217,8 @@ class cyclegan(object):
                                self.fake_A_sample: fake_A,
                                self.fake_B_sample: fake_B,
                                self.lr: lr})
-                self.writer.add_summary(summary_str, counter)
+                if hvd.rank() == 0:
+                    self.writer.add_summary(summary_str, counter)
 
                 counter += 1
                 print(("Epoch: [%2d] [%4d/%4d] time: %4.4f" % (
