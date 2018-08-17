@@ -153,13 +153,18 @@ class cyclegan(object):
         self.g_optim = tf.train.AdamOptimizer(self.lr, beta1=args.beta1) \
             .minimize(self.g_loss, var_list=self.g_vars)
 
+        print("preparing horovod optimizer")
+
         # Horovod: add Horovod Distributed Optimizer.
         self.d_optim = hvd.DistributedOptimizer(self.d_optim)
         self.g_optim = hvd.DistributedOptimizer(self.g_optim)
 
+        print("initializing globals")
         init_op = tf.global_variables_initializer()
         self.sess.run(init_op)
         hvd_init_op = hvd.broadcast_global_variables(0)
+
+        print("beginning session")
         self.sess.run(hvd_init_op)
         self.writer = tf.summary.FileWriter("./logs", self.sess.graph)
 
@@ -175,6 +180,7 @@ class cyclegan(object):
                 print(" [!] Load failed...")
 
         for epoch in range(args.epoch):
+            print("at epoch {}".format(epoch))
             dataA = glob(
                 './datasets/{}/*.*'.format(self.dataset_dir + '/trainA'))
             dataB = glob(
