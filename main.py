@@ -3,6 +3,7 @@ import os
 import tensorflow as tf
 tf.set_random_seed(19)
 from model import cyclegan
+import model
 
 parser = argparse.ArgumentParser(description='')
 parser.add_argument('--dataset_dir', dest='dataset_dir',
@@ -78,23 +79,24 @@ def main(_):
     tfconfig = tf.ConfigProto(allow_soft_placement=True)
     tfconfig.gpu_options.allow_growth = True
 
+    hooks = [
+        # Horovod: BroadcastGlobalVariablesHook broadcasts initial variable states
+        # from rank 0 to all other processes. This is necessary to ensure consistent
+        # initialization of all workers when training is started with random weights
+        # or restored from a checkpoint.
+        hvd.BroadcastGlobalVariablesHook(0),
+
+        # Horovod: adjust number of steps based on number of GPUs.
+        tf.train.StopAtStepHook(last_step=20000 // hvd.size()),
+
+        tf.train.LoggingTensorHook(tensors={'step': model.global_step, 'loss': loss},
+                                   every_n_iter=10),
+    ]
+
     # Config protos for Horovod
     tfconfig.gpu_options.visible_device_list = str(hvd.local_rank())
     with tf.train.MonitoredTrainingSession(config=tfconfig, hooks=hooks, checkpoint_dir=checkpoint_dir) as sess:
         model = cyclegan(sess, args)
-        hooks = [
-            # Horovod: BroadcastGlobalVariablesHook broadcasts initial variable states
-            # from rank 0 to all other processes. This is necessary to ensure consistent
-            # initialization of all workers when training is started with random weights
-            # or restored from a checkpoint.
-            hvd.BroadcastGlobalVariablesHook(0),
-
-            # Horovod: adjust number of steps based on number of GPUs.
-            tf.train.StopAtStepHook(last_step=20000 // hvd.size()),
-
-            tf.train.LoggingTensorHook(tensors={'step': model.global_step, 'loss': loss},
-                                       every_n_iter=10),
-        ]
         model.train(args) if args.phase == 'train' \
             else model.test(args)
 
