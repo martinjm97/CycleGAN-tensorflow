@@ -146,7 +146,6 @@ class cyclegan(object):
         self.global_step = tf.contrib.framework.get_or_create_global_step()
         self.lr = tf.placeholder(tf.float32, None, name='learning_rate')
         self.d_optim = tf.train.AdamOptimizer(self.lr, beta1=args.beta1) \
-
             .minimize(self.d_loss, var_list=self.d_vars, global_step=self.global_step)
         self.g_optim = tf.train.AdamOptimizer(self.lr, beta1=args.beta1) \
             .minimize(self.g_loss, var_list=self.g_vars, global_step=self.global_step)
