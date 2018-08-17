@@ -10,9 +10,9 @@ from module import *
 from utils import *
 import horovod.tensorflow as hvd
 
-global global_step
+# global global_step
 
-global_step = tf.contrib.framework.get_or_create_global_step()
+# global_step = tf.contrib.framework.get_or_create_global_step()
 
 
 class cyclegan(object):
@@ -149,9 +149,9 @@ class cyclegan(object):
         """Train cyclegan"""
         self.lr = tf.placeholder(tf.float32, None, name='learning_rate')
         self.d_optim = tf.train.AdamOptimizer(self.lr, beta1=args.beta1) \
-            .minimize(self.d_loss, var_list=self.d_vars, global_step=global_step)
+            .minimize(self.d_loss, var_list=self.d_vars)
         self.g_optim = tf.train.AdamOptimizer(self.lr, beta1=args.beta1) \
-            .minimize(self.g_loss, var_list=self.g_vars, global_step=global_step)
+            .minimize(self.g_loss, var_list=self.g_vars)
 
         # Horovod: add Horovod Distributed Optimizer.
         self.d_optim = hvd.DistributedOptimizer(self.d_optim)

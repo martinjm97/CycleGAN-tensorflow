@@ -2,7 +2,7 @@ import argparse
 import os
 import tensorflow as tf
 tf.set_random_seed(19)
-from model import cyclegan, global_step
+from model import cyclegan  # , global_step
 
 
 parser = argparse.ArgumentParser(description='')
@@ -87,12 +87,12 @@ def main(_):
         hvd.BroadcastGlobalVariablesHook(0),
 
         # Horovod: adjust number of steps based on number of GPUs.
-        tf.train.StopAtStepHook(last_step=20000 // hvd.size()),
+        # tf.train.StopAtStepHook(last_step=20000 // hvd.size()),
 
         # TODO: Must have multiple losses, so code is not correct now.
-        tf.train.LoggingTensorHook(
-            tensors={'step': global_step},  # , 'loss': loss},
-            every_n_iter=10),
+        # tensors={'step': global_step},   , 'loss': loss},
+        # tf.train.LoggingTensorHook(every_n_iter=10),
+
     ]
 
     # Config protos for Horovod
