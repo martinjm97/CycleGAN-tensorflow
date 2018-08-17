@@ -159,7 +159,7 @@ class cyclegan(object):
 
         init_op = tf.global_variables_initializer()
         self.sess.run(init_op)
-        hvd_init_op = hvd.broadcast_global_variables()
+        hvd_init_op = hvd.broadcast_global_variables(0)
         self.sess.run(hvd_init_op)
         self.writer = tf.summary.FileWriter("./logs", self.sess.graph)
 
