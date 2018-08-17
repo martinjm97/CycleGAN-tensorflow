@@ -182,9 +182,9 @@ class cyclegan(object):
         for epoch in range(args.epoch):
             print("at epoch {}".format(epoch))
             dataA = glob(
-                './datasets/{}/*.*'.format(self.dataset_dir + '/trainA'))
+                '{}/*.*'.format(self.dataset_dir + '/trainA'))
             dataB = glob(
-                './datasets/{}/*.*'.format(self.dataset_dir + '/trainB'))
+                '{}/*.*'.format(self.dataset_dir + '/trainB'))
             np.random.shuffle(dataA)
             np.random.shuffle(dataB)
             batch_idxs = min(min(len(dataA), len(dataB)),
@@ -254,8 +254,8 @@ class cyclegan(object):
             return False
 
     def sample_model(self, sample_dir, epoch, idx):
-        dataA = glob('./datasets/{}/*.*'.format(self.dataset_dir + '/testA'))
-        dataB = glob('./datasets/{}/*.*'.format(self.dataset_dir + '/testB'))
+        dataA = glob('{}/*.*'.format(self.dataset_dir + '/testA'))
+        dataB = glob('{}/*.*'.format(self.dataset_dir + '/testB'))
         np.random.shuffle(dataA)
         np.random.shuffle(dataB)
         batch_files = list(
@@ -279,10 +279,10 @@ class cyclegan(object):
         self.sess.run(init_op)
         if args.which_direction == 'AtoB':
             sample_files = glob(
-                './datasets/{}/*.*'.format(self.dataset_dir + '/testA'))
+                '{}/*.*'.format(self.dataset_dir + '/testA'))
         elif args.which_direction == 'BtoA':
             sample_files = glob(
-                './datasets/{}/*.*'.format(self.dataset_dir + '/testB'))
+                '{}/*.*'.format(self.dataset_dir + '/testB'))
         else:
             raise Exception('--which_direction must be AtoB or BtoA')
 
