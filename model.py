@@ -167,7 +167,7 @@ class cyclegan(object):
         print("beginning session")
         self.sess.run(hvd_init_op)
         if hvd.rank() == 0:
-            self.writer = tf.summary.FileWriter("./logs", self.sess.graph)
+            self.writer = tf.summary.FileWriter("/mnt/azure/logs/foo", self.sess.graph)
 
         counter = 1
         start_time = time.time()
